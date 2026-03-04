@@ -1,0 +1,320 @@
+// ============================================
+// Prisma Schema — Google Classroom Clone (SQLite for Testing)
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── USERS ───────────────────────────────────
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("STUDENT") // Mocked Enum
+  avatarUrl    String?  @map("avatar_url")
+  status       String   @default("ACTIVE") // Mocked Enum
+  lastLogin    DateTime?  @map("last_login")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  taughtClasses    Class[]            @relation("TeacherClasses")
+  classMemberships ClassMember[]
+  createdAssignments Assignment[]
+  submissions      Submission[]
+  grades           Grade[]            @relation("GradedBy")
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  cohortMembers    CohortMember[]
+  reviewedPlagiarism PlagiarismReport[] @relation("ReviewedBy")
+  backups          BackupRecord[]
+
+  @@map("users")
+}
+
+// ─── COHORTS ─────────────────────────────────
+model Cohort {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  members CohortMember[]
+  classes Class[]
+
+  @@map("cohorts")
+}
+
+model CohortMember {
+  cohortId String @map("cohort_id")
+  userId   String @map("user_id")
+  role     String // 'student' or 'faculty'
+
+  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([cohortId, userId])
+  @@map("cohort_members")
+}
+
+// ─── CLASSES ─────────────────────────────────
+model Class {
+  id          String   @id @default(uuid())
+  name        String
+  section     String?
+  subject     String?
+  description String?
+  colorTheme  String   @default("#1967d2") @map("color_theme")
+  coverImage  String?  @map("cover_image")
+  joinCode    String   @unique @map("join_code")
+  teacherId   String   @map("teacher_id")
+  cohortId    String?  @map("cohort_id")
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  teacher     User          @relation("TeacherClasses", fields: [teacherId], references: [id])
+  cohort      Cohort?       @relation(fields: [cohortId], references: [id])
+  members     ClassMember[]
+  assignments Assignment[]
+  announcements Announcement[]
+
+  @@map("classes")
+}
+
+model ClassMember {
+  classId  String @map("class_id")
+  userId   String @map("user_id")
+  role     String @default("student")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([classId, userId])
+  @@map("class_members")
+}
+
+// ─── ANNOUNCEMENTS ───────────────────────────
+model Announcement {
+  id        String   @id @default(uuid())
+  classId   String   @map("class_id")
+  authorId  String   @map("author_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("announcements")
+}
+
+// ─── ASSIGNMENTS ─────────────────────────────
+model Assignment {
+  id             String    @id @default(uuid())
+  classId        String    @map("class_id")
+  title          String
+  description    String?
+  instructions   String?
+  points         Int       @default(100)
+  dueDate        DateTime? @map("due_date")
+  dueTime        String?   @map("due_time")
+  topic          String?
+  status         String    @default("published")
+  allowLate      Boolean   @default(true) @map("allow_late")
+  latePenaltyPct Int       @default(0) @map("late_penalty_pct")
+  allowedFormats String    @default("[]") @map("allowed_formats") // Stored as JSON string
+  maxFileSizeMb  Int       @default(50) @map("max_file_size_mb")
+  createdById    String    @map("created_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  class       Class                @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdBy   User                 @relation(fields: [createdById], references: [id])
+  rubrics     AssignmentRubric[]
+  attachments AssignmentAttachment[]
+  submissions Submission[]
+
+  @@map("assignments")
+}
+
+model AssignmentRubric {
+  id           String @id @default(uuid())
+  assignmentId String @map("assignment_id")
+  criterion    String
+  maxPoints    Int    @map("max_points")
+  sortOrder    Int    @default(0) @map("sort_order")
+
+  assignment   Assignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  rubricScores RubricScore[]
+
+  @@map("assignment_rubrics")
+}
+
+model AssignmentAttachment {
+  id           String   @id @default(uuid())
+  assignmentId String   @map("assignment_id")
+  fileName     String   @map("file_name")
+  fileUrl      String   @map("file_url")
+  fileSize     Int      @map("file_size") // BigInt not fully supported in simple SQLite
+  fileType     String   @map("file_type")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@map("assignment_attachments")
+}
+
+// ─── SUBMISSIONS ─────────────────────────────
+model Submission {
+  id           String   @id @default(uuid())
+  assignmentId String   @map("assignment_id")
+  studentId    String   @map("student_id")
+  status       String   @default("submitted")
+  textEntry    String?  @map("text_entry")
+  isLate       Boolean  @default(false) @map("is_late")
+  submittedAt  DateTime @default(now()) @map("submitted_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assignment Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User             @relation(fields: [studentId], references: [id])
+  files      SubmissionFile[]
+  grade      Grade?
+  plagiarismReportsA PlagiarismReport[] @relation("SubmissionA")
+  plagiarismReportsB PlagiarismReport[] @relation("SubmissionB")
+
+  @@unique([assignmentId, studentId])
+  @@map("submissions")
+}
+
+model SubmissionFile {
+  id           String   @id @default(uuid())
+  submissionId String   @map("submission_id")
+  fileName     String   @map("file_name")
+  fileKey      String   @map("file_key")
+  fileUrl      String?  @map("file_url")
+  fileSize     Int      @map("file_size") // Changed to Int
+  fileType     String   @map("file_type")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("submission_files")
+}
+
+// ─── GRADES ──────────────────────────────────
+model Grade {
+  id           String   @id @default(uuid())
+  submissionId String   @unique @map("submission_id")
+  gradedById   String   @map("graded_by")
+  score        Float
+  maxScore     Int      @map("max_score")
+  feedback     String?
+  gradedAt     DateTime @default(now()) @map("graded_at")
+
+  submission   Submission    @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  gradedBy     User          @relation("GradedBy", fields: [gradedById], references: [id])
+  rubricScores RubricScore[]
+
+  @@map("grades")
+}
+
+model RubricScore {
+  id       String @id @default(uuid())
+  gradeId  String @map("grade_id")
+  rubricId String @map("rubric_id")
+  score    Float
+
+  grade  Grade            @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  rubric AssignmentRubric @relation(fields: [rubricId], references: [id])
+
+  @@map("rubric_scores")
+}
+
+// ─── PLAGIARISM ──────────────────────────────
+model PlagiarismReport {
+  id              String   @id @default(uuid())
+  submissionId    String   @map("submission_id")
+  comparedWithId  String   @map("compared_with_id")
+  similarityScore Float    @map("similarity_score")
+  status          String   @default("pending")
+  reviewedById    String?  @map("reviewed_by")
+  reviewNotes     String?  @map("review_notes")
+  detectedAt      DateTime @default(now()) @map("detected_at")
+
+  submission   Submission @relation("SubmissionA", fields: [submissionId], references: [id])
+  comparedWith Submission @relation("SubmissionB", fields: [comparedWithId], references: [id])
+  reviewedBy   User?      @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  @@map("plagiarism_reports")
+}
+
+// ─── NOTIFICATIONS ───────────────────────────
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  message   String?
+  link      String?
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ─── AUDIT LOGS ──────────────────────────────
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  actionType String   @map("action_type")
+  details    String?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  severity   String   @default("info")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+// ─── SYSTEM CONFIG ───────────────────────────
+model SystemConfig {
+  key       String   @id
+  value     String   // SQLite json fallback
+  updatedBy String?  @map("updated_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}
+
+// ─── BACKUP RECORDS ──────────────────────────
+model BackupRecord {
+  id              String   @id @default(uuid())
+  type            String
+  status          String   @default("in_progress")
+  sizeBytes       Int?     @map("size_bytes")
+  fileKey         String?  @map("file_key")
+  durationSeconds Int?     @map("duration_seconds")
+  createdById     String?  @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  createdBy User? @relation(fields: [createdById], references: [id])
+
+  @@map("backup_records")
+}

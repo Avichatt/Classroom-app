@@ -138,7 +138,7 @@ export default function ClassDetailPage() {
             submissionCount: 0,
             gradedCount: 0,
         };
-        addAssignment(classId!, assignment);
+        addAssignment(assignment);
         setCreateAssignOpen(false);
         setNewAssignment({ title: '', description: '', points: 100, dueDate: '', topic: '' });
     };

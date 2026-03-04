@@ -79,7 +79,7 @@ export default function AssignmentCreatorPage() {
             gradedCount: 0,
             rubric: rubric.length > 0 ? rubric : undefined,
         };
-        addAssignment(classId!, assignment);
+        addAssignment(assignment);
         navigate(`/class/${classId}`);
     };
 

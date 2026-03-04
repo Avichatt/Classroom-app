@@ -151,7 +151,7 @@ export default function AssignmentDetailPage() {
             isLate,
         };
 
-        addSubmission(assignment.id, submission);
+        addSubmission(submission);
         setUploading(false);
         setUploadedFiles([]);
         setFileErrors([]);
