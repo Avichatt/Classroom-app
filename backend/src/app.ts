@@ -27,15 +27,18 @@ app.use(helmet());
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 
 // Rate Limiting (100 requests per 15 minutes per IP)
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: true, legacyHeaders: false });
-app.use('/api', limiter);
+// Disabled in test environment so the test suite can run all repeats without 429s
+if (env.NODE_ENV !== 'test') {
+    const limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: true, legacyHeaders: false });
+    app.use('/api', limiter);
+}
 
 // Parsing Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging
-if (env.isDev) {
+// Logging (suppress in test to keep output clean)
+if (env.isDev && env.NODE_ENV !== 'test') {
     app.use(morgan('dev'));
 }
 

@@ -1,0 +1,89 @@
+﻿
+≡ƒÜÇ Starting Classroom Production Test Suite...
+
+Target: https://classroom-app-mpgb.onrender.com/api
+
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+≡ƒôï [1] Health Check
+
+≡ƒôï [2] Authentication
+
+≡ƒôï [3] Classes
+
+≡ƒôï [4] Class Enrollment
+
+≡ƒôï [5] Assignments
+
+≡ƒôï [6] Submissions
+
+≡ƒôï [7] Grading
+
+≡ƒôï [8] Admin
+
+≡ƒôï [9] User Management
+
+≡ƒôï [10] JWT Refresh
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+≡ƒôè TEST RESULTS
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+Γ¥î FAIL Backend health endpoint returns OK
+         ΓööΓöÇ status=429
+Γ¥î FAIL Admin login succeeds
+         ΓööΓöÇ status=429
+Γ¥î FAIL Faculty login succeeds
+         ΓööΓöÇ status=429
+Γ¥î FAIL Student login succeeds
+         ΓööΓöÇ status=429
+Γ¥î FAIL Invalid login is rejected
+         ΓööΓöÇ status=429
+Γ¥î FAIL Auth /me returns student profile
+         ΓööΓöÇ role=undefined
+Γ¥î FAIL Unauthenticated request is blocked (401)
+         ΓööΓöÇ status=429
+Γ¥î FAIL Faculty can list classes
+         ΓööΓöÇ count=undefined
+Γ¥î FAIL Faculty can create a new class
+         ΓööΓöÇ classId=undefined
+Γ¥î FAIL Student can join a class using join code
+         ΓööΓöÇ status=429
+Γ¥î FAIL Faculty can view class members
+         ΓööΓöÇ count=undefined
+Γ¥î FAIL Faculty can create an assignment
+         ΓööΓöÇ assignmentId=undefined
+Γ¥î FAIL Student can list assignments in their class
+         ΓööΓöÇ count=undefined
+Γ¥î FAIL Student can view assignment detail
+         ΓööΓöÇ Skipped - no assignment created
+Γ¥î FAIL Student can submit an assignment
+         ΓööΓöÇ Skipped - no assignment created
+Γ¥î FAIL Faculty can view submissions for assignment
+         ΓööΓöÇ Skipped
+Γ¥î FAIL Faculty can grade a student submission
+         ΓööΓöÇ Skipped - no submission created
+Γ¥î FAIL Admin can list all users
+         ΓööΓöÇ count=undefined
+Γ¥î FAIL Admin can view system dashboard stats
+         ΓööΓöÇ totalUsers=undefined
+Γ¥î FAIL Student is forbidden from admin routes (403)
+         ΓööΓöÇ status=429
+Γ¥î FAIL Faculty is forbidden from admin routes (403)
+         ΓööΓöÇ status=429
+Γ¥î FAIL Student can update their own profile
+         ΓööΓöÇ status=429
+Γ¥î FAIL Admin can update any user profile
+         ΓööΓöÇ Skipped
+Γ¥î FAIL Student token refresh works
+         ΓööΓöÇ Skipped - no refresh token
+Γ¥î FAIL Student can logout successfully
+         ΓööΓöÇ status=429
+
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£à PASSED: 0/25
+Γ¥î FAILED: 25/25
+≡ƒôê Score:  0%
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+ΓÜá∩╕Å  Some tests failed. Check details above.
+
